@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> Tile App</title>
+  </head>
+  <style>
+table, th, td {
+  border:1px solid black;
+}
+  </style>
+  <body>
+    <h1>Tile App!</h1>
+    <div><table id="table-id" style="width:100%"></table></div>
+    <script type="text/javascript">
+const tableRows = 100
+const tableColumns = 100
+
+ws = new WebSocket('ws://localhost:3000')
+
+ws.addEventListener('error', () => {
+  console.log('Websocket error')
+})
+
+ws.addEventListener('open', () => {
+  console.log('Websocket connection established')
+})
+
+ws.addEventListener('close', () => {
+  console.log('Websocket connection closed')
+})
+
+ws.addEventListener('message', (msg) => {
+  console.log(`Message: ${msg.data}`)
+  const data = JSON.parse(msg.data)
+  const index = (data.x * tableRows) + data.y
+  document.getElementById(`${index}`).style.background = data.color
+})
+
+function colorCell() {
+  const colorLength = 6
+  const rgbchars = 'abcdef0123456789'
+  const x = Math.floor(Math.random() * tableRows)
+  const y = Math.floor(Math.random() * tableColumns)
+  let color = '#'
+  for(let i = 0; i < colorLength; i++) {
+    const colorIndex = Math.floor(Math.random() * rgbchars.length)
+    color += rgbchars.charAt(colorIndex)
+  }
+  return {x: x, y: y, color: color}
+}
+
+
+let tableCells = ''
+for(let i = 0; i < tableRows; i++) {
+  tableRow = `<tr>`
+  for(let j = 0; j < tableColumns; j++) {
+    tableRow += `<td id=${i*tableColumns + j}></td>`
+  }
+  tableRow += '</tr>'
+  tableCells += tableRow
+}
+
+document.getElementById('table-id').innerHTML = tableCells
+    </script>
+  </body>
+</html>
